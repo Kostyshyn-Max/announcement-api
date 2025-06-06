@@ -1,4 +1,4 @@
-namespace Announcement.API.Profiles;
+namespace Announcement.Models.Profiles;
 
 using Announcement.Models.Models;
 using AutoMapper;

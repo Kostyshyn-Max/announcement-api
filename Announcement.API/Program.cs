@@ -1,7 +1,7 @@
-using Announcement.API.Profiles;
 using Announcement.BusinessLogic.Interfaces;
 using Announcement.BusinessLogic.Services;
 using Announcement.DataAccess.EF;
+using Announcement.Models.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

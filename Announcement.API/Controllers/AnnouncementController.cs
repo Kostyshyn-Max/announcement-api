@@ -93,9 +93,9 @@ public class AnnouncementController : ControllerBase
             await this._announcementService.DeleteAsync(id);
             return this.NoContent();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
-            return this.NotFound();
+            return this.NotFound(ex.Message);
         }
     }
 

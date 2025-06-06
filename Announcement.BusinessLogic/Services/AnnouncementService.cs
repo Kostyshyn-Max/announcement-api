@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Announcement.BusinessLogic.Services;
 
 using Announcement.BusinessLogic.Interfaces;
@@ -76,7 +74,7 @@ public class AnnouncementService : IAnnouncementService
     /// Deletes an announcement by its ID.
     /// </summary>
     /// <param name="id">The ID of the announcement to delete.</param>
-    /// <exception cref="InvalidOperationException">
+    /// <exception cref="KeyNotFoundException">
     /// Thrown if an error occurs during the deletion process.
     /// </exception>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -86,9 +84,9 @@ public class AnnouncementService : IAnnouncementService
         {
             await this._announcementRepository.DeleteAsync(id);
         }
-        catch (InvalidOperationException ex)
+        catch (KeyNotFoundException ex)
         {
-            throw new InvalidOperationException(ex.Message, ex);
+            throw new KeyNotFoundException(ex.Message, ex);
         }
     }
 
@@ -126,19 +124,24 @@ public class AnnouncementService : IAnnouncementService
     public async Task<AnnouncementDetailsModel?> GetByIdAsync(int id, int similarAnnouncementsCount = 3)
     {
         var announcementEntity = await this._announcementRepository.GetByIdAsync(id);
+        if (announcementEntity is null)
+        {
+            return null;
+        }
+
         var announcementModel = this._mapper.Map<AnnouncementDetailsModel>(announcementEntity);
         List<AnnouncementModel> similarAnnouncements = [];
+
+        var titleWords = announcementModel.Title.Split(" ");
+        var descriptionWords = announcementModel.Description.Split(" ");
 
         var announcements = (await this._announcementRepository.GetAllAsync()).Where(a => !a.Equals(announcementEntity)).OrderBy(a => a.AddedDate);
         foreach (var announcement in announcements)
         {
-            if (similarAnnouncements.Count > 3)
+            if (similarAnnouncements.Count >= similarAnnouncementsCount)
             {
                 break;
             }
-
-            var titleWords = announcement.Title.Split(" ");
-            var descriptionWords = announcement.Description.Split(" ");
 
             if (titleWords.Any(word => announcement.Title.Contains(word)) &&
                 descriptionWords.Any(word => announcement.Description.Contains(word)))

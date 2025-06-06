@@ -24,7 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Announcement.BusinessLogic\Announcement.BusinessLogic.csproj" />
       <ProjectReference Include="..\Announcement.DataAccess\Announcement.DataAccess.csproj" />
-      <ProjectReference Include="..\Announcement.Models\Announcement.Models.csproj" />
+      <ProjectReference Include="..\Announcement.Shared\Announcement.Shared.csproj" />
     </ItemGroup>
 
 </Project>

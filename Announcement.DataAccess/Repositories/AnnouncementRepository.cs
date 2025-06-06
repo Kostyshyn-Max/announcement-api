@@ -37,7 +37,7 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
         ArgumentNullException.ThrowIfNull(entity);
 
         var entry = await this._dbSet.AddAsync(entity);
-        await this.context.SaveChangesAsync();
+        await this.сontext.SaveChangesAsync();
         return entry.Entity.Id;
     }
 
@@ -95,7 +95,7 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
         ArgumentNullException.ThrowIfNull(entity);
 
         this._dbSet.Update(entity);
-        return this.context.SaveChangesAsync();
+        return this.сontext.SaveChangesAsync();
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
         ArgumentNullException.ThrowIfNull(entity);
 
         this._dbSet.Remove(entity);
-        return this.context.SaveChangesAsync();
+        return this.сontext.SaveChangesAsync();
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
         if (announcement is not null)
         {
             this._dbSet.Remove(announcement);
-            await this.context.SaveChangesAsync();
+            await this.сontext.SaveChangesAsync();
         }
 
         throw new KeyNotFoundException($"Announcement with ID: {id} was not found.");

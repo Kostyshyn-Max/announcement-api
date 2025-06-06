@@ -10,7 +10,7 @@ public abstract class AbstractRepository
     /// <summary>
     /// The database context used by the repository.
     /// </summary>
-    protected readonly ApplicationDbContext context;
+    protected readonly ApplicationDbContext сontext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AbstractRepository"/> class with the specified context.
@@ -19,6 +19,6 @@ public abstract class AbstractRepository
     /// <exception cref="ArgumentNullException">Throws an exception when context is null.</exception>
     protected AbstractRepository(ApplicationDbContext context)
     {
-        this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.сontext = context ?? throw new ArgumentNullException(nameof(context));
     }
 }

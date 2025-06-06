@@ -14,5 +14,5 @@ public class AnnouncementDetailsModel : AnnouncementModel
     /// <summary>
     /// Gets or sets a collection of announcements that are similar to the current announcement.
     /// </summary>
-    public IEnumerable<AnnouncementModel>? SimilarAnnouncements { get; set; } = new List<AnnouncementModel>();
+    public List<AnnouncementModel> SimilarAnnouncements { get; set; } = new List<AnnouncementModel>();
 }
