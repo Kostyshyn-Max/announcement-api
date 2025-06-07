@@ -47,20 +47,26 @@ public interface ICrudRepository<T>
     /// Updates an existing entity in the repository.
     /// </summary>
     /// <param name="entity">The entity to update.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task UpdateAsync(T entity);
+    /// <returns>
+    /// The result, a boolean value indicating whether the update was successful.
+    /// </returns>
+    Task<bool> UpdateAsync(T entity);
 
     /// <summary>
     /// Deletes an entity from the repository.
     /// </summary>
     /// <param name="entity">The entity to delete.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task DeleteAsync(T entity);
+    /// <returns>
+    /// The result, a boolean value indicating whether the deletion was successful.
+    /// </returns>
+    Task<bool> DeleteAsync(T entity);
 
     /// <summary>
-    /// Deletes an entity by its ID.
+    /// Deletes an entity from the repository by its ID.
     /// </summary>
     /// <param name="id">The ID of the entity to delete.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task DeleteAsync(int id);
+    /// <returns>
+    /// The result, a boolean value indicating whether the deletion was successful.
+    /// </returns>
+    Task<bool> DeleteAsync(int id);
 }

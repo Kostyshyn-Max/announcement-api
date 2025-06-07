@@ -33,11 +33,6 @@ public class AnnouncementController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<int>> Create([FromBody] AnnouncementCreateModel model)
     {
-        if (!this.ModelState.IsValid)
-        {
-            return this.BadRequest(this.ModelState);
-        }
-
         var announcementId = await this._announcementService.CreateAsync(model);
         return this.Ok(announcementId);
     }
@@ -60,14 +55,15 @@ public class AnnouncementController : ControllerBase
     /// Retrieves an announcement by its ID.
     /// </summary>
     /// <param name="id">The ID of the announcement to retrieve.</param>
+    /// <param name="similarAnnouncementsCount">The number of similar announcements to include in the result. Defaults to 3.</param>
     /// <returns>The announcement with the specified ID.</returns>
     [HttpGet]
     [Route("{id:int}")]
     [ProducesResponseType<AnnouncementModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AnnouncementModel>> GetById([FromRoute] int id)
+    public async Task<ActionResult<AnnouncementModel>> GetById([FromRoute] int id, [FromQuery] int similarAnnouncementsCount = 3)
     {
-        var announcement = await this._announcementService.GetByIdAsync(id);
+        var announcement = await this._announcementService.GetByIdAsync(id, similarAnnouncementsCount);
 
         if (announcement is null)
         {
@@ -88,15 +84,13 @@ public class AnnouncementController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Delete([FromRoute] int id)
     {
-        try
+        var result = await this._announcementService.DeleteAsync(id);
+        if (result)
         {
-            await this._announcementService.DeleteAsync(id);
             return this.NoContent();
         }
-        catch (KeyNotFoundException ex)
-        {
-            return this.NotFound(ex.Message);
-        }
+
+        return this.BadRequest();
     }
 
     /// <summary>
@@ -108,23 +102,15 @@ public class AnnouncementController : ControllerBase
     [HttpPut]
     [Route("update/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Update([FromRoute] int id, [FromBody] AnnouncementUpdateModel model)
     {
-        if (!this.ModelState.IsValid)
+        var result = await this._announcementService.UpdateAsync(id, model);
+        if (result)
         {
-            return this.BadRequest(this.ModelState);
-        }
-
-        try
-        {
-            await this._announcementService.UpdateAsync(id, model);
             return this.NoContent();
         }
-        catch (KeyNotFoundException ex)
-        {
-            return this.NotFound(ex.Message);
-        }
+
+        return this.BadRequest();
     }
 }

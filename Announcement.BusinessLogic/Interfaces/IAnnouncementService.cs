@@ -19,15 +19,19 @@ public interface IAnnouncementService
     /// </summary>
     /// <param name="id">The ID of the announcement to update.</param>
     /// <param name="model">The model containing the updated details of the announcement.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task UpdateAsync(int id, AnnouncementUpdateModel model);
+    /// <returns>
+    /// The result, boolean value indicating whether the update was successful.
+    /// </returns>
+    Task<bool> UpdateAsync(int id, AnnouncementUpdateModel model);
 
     /// <summary>
     /// Deletes an announcement by its ID.
     /// </summary>
     /// <param name="id">The ID of the announcement to delete.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task DeleteAsync(int id);
+    /// <returns>
+    /// The result, boolean value indicating whether the deletion was successful.
+    /// </returns>
+    Task<bool> DeleteAsync(int id);
 
     /// <summary>
     /// Retrieves all announcements, optionally paginated.
@@ -43,5 +47,5 @@ public interface IAnnouncementService
     /// <param name="id">The ID of the announcement to retrieve.</param>
     /// <param name="similarAnnouncementsCount">The number of similar announcements to include in the details.</param>
     /// <returns>The detailed information of the announcement with the specified ID.</returns>
-    Task<AnnouncementDetailsModel?> GetByIdAsync(int id, int similarAnnouncementsCount = 3);
+    Task<AnnouncementDetailsModel?> GetByIdAsync(int id, int similarAnnouncementsCount);
 }

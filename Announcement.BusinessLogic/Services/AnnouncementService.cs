@@ -6,6 +6,7 @@ using Announcement.DataAccess.EF;
 using Announcement.DataAccess.Repositories;
 using AutoMapper;
 using Announcement.Models.Models;
+using System.Text.RegularExpressions;
 using Announcement = Announcement.DataAccess.Entities.Announcement;
 
 /// <summary>
@@ -13,24 +14,18 @@ using Announcement = Announcement.DataAccess.Entities.Announcement;
 /// </summary>
 public class AnnouncementService : IAnnouncementService
 {
-    /// <summary>
-    /// Repository for managing announcement data.
-    /// </summary>
     private readonly IAnnouncementRepository _announcementRepository;
 
-    /// <summary>
-    /// Mapper for transforming objects between different layers.
-    /// </summary>
     private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnnouncementService"/> class.
     /// </summary>
-    /// <param name="context">The database context used for data access.</param>
-    /// <param name="mapper">The mapper used for object transformations.</param>
-    public AnnouncementService(ApplicationDbContext context, IMapper mapper)
+    /// <param name="repository">The repository used for accessing announcement data.</param>
+    /// <param name="mapper">The mapper used for object-to-object mapping.</param>
+    public AnnouncementService(IAnnouncementRepository repository, IMapper mapper)
     {
-        this._announcementRepository = new AnnouncementRepository(context);
+        this._announcementRepository = repository;
         this._mapper = mapper;
     }
 
@@ -54,40 +49,35 @@ public class AnnouncementService : IAnnouncementService
     /// </summary>
     /// <param name="id">The ID of the announcement to update.</param>
     /// <param name="model">The model containing the updated details of the announcement.</param>
-    /// <exception cref="KeyNotFoundException">Thrown if the announcement with the specified ID is not found.</exception>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task UpdateAsync(int id, AnnouncementUpdateModel model)
+    /// <returns>
+    /// The result, boolean value indicating whether the update was successful.
+    /// </returns>
+    public async Task<bool> UpdateAsync(int id, AnnouncementUpdateModel model)
     {
         var existingAnnouncement = await this._announcementRepository.GetByIdAsync(id);
         if (existingAnnouncement is null)
         {
-            throw new KeyNotFoundException($"Announcement with ID: {id} was not found.");
+            return false;
         }
 
         existingAnnouncement.Title = model.Title;
         existingAnnouncement.Description = model.Description;
 
-        await this._announcementRepository.UpdateAsync(existingAnnouncement);
+        var result = await this._announcementRepository.UpdateAsync(existingAnnouncement);
+        return result;
     }
 
     /// <summary>
     /// Deletes an announcement by its ID.
     /// </summary>
     /// <param name="id">The ID of the announcement to delete.</param>
-    /// <exception cref="KeyNotFoundException">
-    /// Thrown if an error occurs during the deletion process.
-    /// </exception>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task DeleteAsync(int id)
+    /// <returns>
+    /// The result, boolean value indicating whether the deletion was successful.
+    /// </returns>
+    public async Task<bool> DeleteAsync(int id)
     {
-        try
-        {
-            await this._announcementRepository.DeleteAsync(id);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            throw new KeyNotFoundException(ex.Message, ex);
-        }
+        var result = await this._announcementRepository.DeleteAsync(id);
+        return result;
     }
 
     /// <summary>
@@ -119,9 +109,9 @@ public class AnnouncementService : IAnnouncementService
     /// Retrieves an announcement by its ID, including additional information and a specified number of similar announcements.
     /// </summary>
     /// <param name="id">The ID of the announcement to retrieve.</param>
-    /// <param name="similarAnnouncementsCount">The number of similar announcements to include in the result. Defaults to 3.</param>
+    /// <param name="similarAnnouncementsCount">The number of similar announcements to include in the result.</param>
     /// <returns>The detailed information of the announcement with the specified ID.</returns>
-    public async Task<AnnouncementDetailsModel?> GetByIdAsync(int id, int similarAnnouncementsCount = 3)
+    public async Task<AnnouncementDetailsModel?> GetByIdAsync(int id, int similarAnnouncementsCount)
     {
         var announcementEntity = await this._announcementRepository.GetByIdAsync(id);
         if (announcementEntity is null)
@@ -132,8 +122,7 @@ public class AnnouncementService : IAnnouncementService
         var announcementModel = this._mapper.Map<AnnouncementDetailsModel>(announcementEntity);
         List<AnnouncementModel> similarAnnouncements = [];
 
-        var titleWords = announcementModel.Title.Split(" ");
-        var descriptionWords = announcementModel.Description.Split(" ");
+        var words = ExtractWords(announcementModel.Title + " " + announcementModel.Description);
 
         var announcements = (await this._announcementRepository.GetAllAsync()).Where(a => !a.Equals(announcementEntity)).OrderBy(a => a.AddedDate);
         foreach (var announcement in announcements)
@@ -143,8 +132,8 @@ public class AnnouncementService : IAnnouncementService
                 break;
             }
 
-            if (titleWords.Any(word => announcement.Title.Contains(word)) &&
-                descriptionWords.Any(word => announcement.Description.Contains(word)))
+            string announcementText = announcement.Title + " " + announcement.Description;
+            if (words.Any(word => Regex.IsMatch(announcementText, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase)))
             {
                 similarAnnouncements.Add(this._mapper.Map<AnnouncementModel>(announcement));
             }
@@ -152,5 +141,21 @@ public class AnnouncementService : IAnnouncementService
 
         announcementModel.SimilarAnnouncements = similarAnnouncements;
         return announcementModel;
+    }
+
+    /// <summary>
+    /// Extracts distinct words from the given text.
+    /// </summary>
+    /// <param name="text">The input text from which to extract words.</param>
+    /// <returns>
+    /// A list of unique words in lowercase extracted from the input text.
+    /// Words are identified using a regular expression that matches word boundaries.
+    /// </returns>
+    private static List<string> ExtractWords(string text)
+    {
+        string pattern = @"\b[\w-]+\b";
+
+        List<string> words = Regex.Matches(text, pattern).Select(x => x.Value.ToLower()).Distinct().ToList();
+        return words;
     }
 }

@@ -4,7 +4,7 @@ namespace Announcement.Models.Models;
 /// Represents the details of an announcement, including additional information
 /// such as description and similar announcements.
 /// </summary>
-public class AnnouncementDetailsModel : AnnouncementModel
+public record AnnouncementDetailsModel : AnnouncementModel
 {
     /// <summary>
     /// Gets or sets the description of the announcement.

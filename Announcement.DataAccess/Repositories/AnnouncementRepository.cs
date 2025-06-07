@@ -88,14 +88,14 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
     /// Updates an existing announcement in the database.
     /// </summary>
     /// <param name="entity">The announcement entity to update.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the provided entity is null.</exception>
-    public Task UpdateAsync(Announcement entity)
+    /// <returns>
+    /// The result, boolean value indicating whether the update was successful.
+    /// </returns>
+    public async Task<bool> UpdateAsync(Announcement entity)
     {
-        ArgumentNullException.ThrowIfNull(entity);
-
         this._dbSet.Update(entity);
-        return this.сontext.SaveChangesAsync();
+        await this.сontext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
@@ -103,30 +103,31 @@ public class AnnouncementRepository : AbstractRepository, IAnnouncementRepositor
     /// </summary>
     /// <param name="entity">The announcement entity to delete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the provided entity is null.</exception>
-    public Task DeleteAsync(Announcement entity)
+    public async Task<bool> DeleteAsync(Announcement entity)
     {
-        ArgumentNullException.ThrowIfNull(entity);
-
         this._dbSet.Remove(entity);
-        return this.сontext.SaveChangesAsync();
+        await this.сontext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
     /// Deletes an announcement from the database by its ID.
     /// </summary>
     /// <param name="id">The ID of the announcement to delete.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the announcement with the specified ID is not found.</exception>
-    public async Task DeleteAsync(int id)
+    /// <returns>
+    /// The result, boolean value indicating whether the deletion was successful.
+    /// </returns>
+    public async Task<bool> DeleteAsync(int id)
     {
         var announcement = await this._dbSet.FindAsync(id);
-        if (announcement is not null)
+        if (announcement is null)
         {
-            this._dbSet.Remove(announcement);
-            await this.сontext.SaveChangesAsync();
+            return false;
         }
 
-        throw new KeyNotFoundException($"Announcement with ID: {id} was not found.");
+        this._dbSet.Remove(announcement);
+        await this.сontext.SaveChangesAsync();
+        return true;
+
     }
 }

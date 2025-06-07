@@ -3,7 +3,7 @@ namespace Announcement.Models.Models;
 /// <summary>
 /// Represents a model for an announcement in the business logic layer.
 /// </summary>
-public class AnnouncementModel
+public record AnnouncementModel
 {
     /// <summary>
     /// Gets or sets the unique identifier for the announcement.

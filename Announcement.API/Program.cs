@@ -1,6 +1,8 @@
 using Announcement.BusinessLogic.Interfaces;
 using Announcement.BusinessLogic.Services;
 using Announcement.DataAccess.EF;
+using Announcement.DataAccess.Interfaces;
+using Announcement.DataAccess.Repositories;
 using Announcement.Models.Profiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
